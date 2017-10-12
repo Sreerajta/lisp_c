@@ -1,0 +1,2 @@
+char *str="(define fib (lambda (n) (if (< n 2) 1 (+ (fib (- n 1)) (fib (- n 2))))))";
+char *str2="(fib 4)";
