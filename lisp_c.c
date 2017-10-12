@@ -270,6 +270,7 @@ lnode *parse(list *tokens,int *tknum){
 			 }
          
         }
+   return 0;
 }
 
 long hash(char *w){
@@ -524,6 +525,7 @@ lnode *eval(lnode *x,lnode *env){
          }
      }     
    }
+    return 0;
 }
 
 int main()
