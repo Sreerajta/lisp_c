@@ -546,7 +546,9 @@ int main()
    tokens=tokenize(str2);
    tnum=0;
    pnode=parse(tokens,&tnum);
+   free(tokens); 
    result=eval(pnode,genv);
+   free(pnode);
    print_result(result);
    return 0;
 }
