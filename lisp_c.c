@@ -17,9 +17,11 @@ lnode* lt(lnode*);
 lnode* ge(lnode*);
 lnode* le(lnode*);
 lnode *divs(lnode*);
+lnode result;
 
 void printlist(list *lst);
 lnode *addFun(lnode *(*fptr) (lnode *), char *s);
+
 
 struct lnode{
   enum { 
@@ -47,7 +49,11 @@ struct list{
   struct lnode *item;    
 };
 
+
+
+
 list *createlist(){
+  
   list *l=(list*)malloc(sizeof(list));
   l->length=0;
   l->item=(lnode*) malloc (sizeof (lnode));
@@ -127,9 +133,10 @@ char *replace_str(char *orig, char *rep, char *with) {
 
     tmp = result = malloc(strlen(orig) + (len_with - len_rep) * count + 1);
 
-    if (!result)
+    if (!result){
+        free(result);
         return NULL;
-
+    }
 
     while (count--) {
         ins = strstr(orig, rep);
@@ -170,13 +177,14 @@ list *tokenize(char *str){
     char *str2=" ( ";
     char *str3=")";
     char *str4=" ) ";
-    
-	str=replace_str(str, str1, str2);
-    str=replace_str(str,str3,str4);
-    
-	str=strstrip(str);
+    char *str5;
+	char *str6;
+    str5=replace_str(str, str1, str2);
+    str6=replace_str(str5,str3,str4);
+    free(str5);
+	str6=strstrip(str6);
     char *token;
-    char *rest = str;
+    char *rest = str6;
     list *tokenlist=createlist();
     while ((token = strtok_r(rest, " ", &rest))){    
 	   additem(tokenlist,token);
@@ -236,12 +244,12 @@ lnode *parse(list *tokens,int *tknum){
        printf("syntax error");
     }
     
-    lnode *token=(lnode*)malloc(sizeof(lnode));
+    lnode *token;//=(lnode*)malloc(sizeof(lnode));
     token=getitem(tokens,*tknum);
 	
     
     if(token->type==is_char&&strcmp(token->val.cval,"(")==0){
-		list *parsedlist =createlist();
+		list *parsedlist=createlist();
         
         while((*tknum)<tokens->length-1){
              if(!(getitem(tokens,(*tknum)+1)->type==is_char&&strcmp(getitem(tokens,(*tknum)+1)->val.cval,")")==0)){
@@ -270,7 +278,8 @@ lnode *parse(list *tokens,int *tknum){
 			 }
          
         }
-   return 0;
+
+    return 0;
 }
 
 long hash(char *w){
@@ -318,100 +327,109 @@ lnode *addFun(lnode *(*fptr) (lnode *), char *s){
 //math functions:
 
 lnode *add(lnode *a){
-    lnode *result=(lnode*)malloc(sizeof(lnode));
-    result->type=is_int;
-    result->val.ival=0;
+    //lnode *result=(lnode*)malloc(sizeof(lnode));
+    result.type=is_int;
+    result.val.ival=0;
     
     for(int i=0;i<a->val.lval->length;++i){
-        result->val.ival+=a->val.lval->item[i].val.ival;
+        result.val.ival+=a->val.lval->item[i].val.ival;
     }
-    return result;
+    free(a);
+    return &result;
 }
 
 lnode *sub(lnode *a){
-    lnode *result=(lnode*)malloc(sizeof(lnode));
-    result->type=is_int;
-    result->val.ival=a->val.lval->item[0].val.ival;
+    //lnode *result=(lnode*)malloc(sizeof(lnode));
+    result.type=is_int;
+    result.val.ival=a->val.lval->item[0].val.ival;
     
     for(int i=1;i<a->val.lval->length;++i){
-        result->val.ival-=a->val.lval->item[i].val.ival;
+        result.val.ival-=a->val.lval->item[i].val.ival;
     }
-    return result;    
+    free(a);
+    return &result;    
 }
 
 lnode *gt(lnode *a){
     int x=a->val.lval->item[0].val.ival;
     int y=a->val.lval->item[1].val.ival;
-    lnode *result=(lnode*)malloc(sizeof(lnode));
-    result->type=is_bool;
+    //lnode *result=(lnode*)malloc(sizeof(lnode));
+    result.type=is_bool;
     if(x>y){
-    result->val.cval="t";
+    result.val.cval="t";
     }
     else
-    result->val.cval="f";
-    return result;
+    result.val.cval="f";
+    free(a);
+    return &result;
 }
 
 lnode *lt(lnode *a){
     int x=a->val.lval->item[0].val.ival;
     int y=a->val.lval->item[1].val.ival;
-    lnode *result=(lnode*)malloc(sizeof(lnode));
-    result->type=is_bool;
+    //lnode result;//=(lnode*)malloc(sizeof(lnode));
+    result.type=is_bool;
     if(x<y){
-    result->val.cval="t";
+    result.val.cval="t";
     }
     else
-    result->val.cval="f";
-    return result;
+    result.val.cval="f";
+    free(a);
+    return &result;
 }
 
 lnode *ge(lnode *a){
     int x=a->val.lval->item[0].val.ival;
     int y=a->val.lval->item[1].val.ival;
-    lnode *result=(lnode*)malloc(sizeof(lnode));
-    result->type=is_bool;
+    //lnode *result=(lnode*)malloc(sizeof(lnode));
+    result.type=is_bool;
     if(x>=y){
-    result->val.cval="t";
+    result.val.cval="t";
     }
     else
-    result->val.cval="f";
-    return result;
+    result.val.cval="f";
+    free(a);
+    return &result;
 }
 
 lnode *le(lnode *a){
     int x=a->val.lval->item[0].val.ival;
     int y=a->val.lval->item[1].val.ival;
-    lnode *result=(lnode*)malloc(sizeof(lnode));
-    result->type=is_bool;
+    //lnode *result=(lnode*)malloc(sizeof(lnode));
+    result.type=is_bool;
     if(x<=y){
-    result->val.cval="t";
+    result.val.cval="t";
     }
     else
-    result->val.cval="f";
-    return result;
+    result.val.cval="f";
+    free(a);
+    return &result;
 }
 
 lnode *mul(lnode *a){
-    lnode *result=(lnode*)malloc(sizeof(lnode));
-    result->type=is_int;
-    result->val.ival=1;
+    //lnode *result=(lnode*)malloc(sizeof(lnode));
+    result.type=is_int;
+    result.val.ival=1;
   
     for(int i=0;i<a->val.lval->length;++i){
-        result->val.ival*=a->val.lval->item[i].val.ival;
+        result.val.ival*=a->val.lval->item[i].val.ival;
     }
-    return result;  
+    free(a);
+    return &result;  
 }
 
 lnode *divs(lnode *a){
-    lnode *result=(lnode*)malloc(sizeof(lnode));
-    result->type=is_int;
-    result->val.ival=a->val.lval->item[0].val.ival;
+    //lnode *result=(lnode*)malloc(sizeof(lnode));
+    result.type=is_int;
+    result.val.ival=a->val.lval->item[0].val.ival;
    
     for(int i=0;i<a->val.lval->length;++i){
-        result->val.ival*=a->val.lval->item[i].val.ival;
+        result.val.ival*=a->val.lval->item[i].val.ival;
     }
-    return result; 
+    free(a);
+    return &result; 
 }
+
 
 lnode *create_env(lnode *parms, lnode *args, lnode *outerEnv){
 	
@@ -441,7 +459,7 @@ lnode *find_env(char *s,lnode *env){
 
 
 lnode *eval(lnode *x,lnode *env){
-    lnode *e_env=(lnode*)malloc(sizeof(lnode));
+    lnode *e_env;//=(lnode*)malloc(sizeof(lnode));
     if(env==NULL){
      e_env=standard_env();
     }
@@ -466,11 +484,11 @@ lnode *eval(lnode *x,lnode *env){
         }
      
      else if(strcmp(x->val.lval->item[0].val.cval,"if")==0){
-        lnode *test=(lnode*)malloc(sizeof(lnode));
-        lnode *conseq=(lnode*)malloc(sizeof(lnode));
-        lnode *alt=(lnode*)malloc(sizeof(lnode));
-        lnode *tempres=(lnode*)malloc(sizeof(lnode));
-        lnode *res=(lnode*)malloc(sizeof(lnode));
+        lnode *test;
+        lnode *conseq;
+        lnode *alt;
+        lnode *tempres;
+        lnode *res;
         test=&x->val.lval->item[1];
         conseq=&x->val.lval->item[2];
         alt=&x->val.lval->item[3]; 
@@ -484,15 +502,18 @@ lnode *eval(lnode *x,lnode *env){
      
 	 else if(strcmp(x->val.lval->item[0].val.cval,"set!")==0){
       find_env(x->val.lval->item[1].val.cval,e_env)->thisEnv[hash(x->val.lval->item[1].val.cval)]=eval(&x->val.lval->item[2],e_env);
-     } 
+      free(x);
+         
+    } 
      
 	 else if(strcmp(x->val.lval->item[0].val.cval,"define")==0){
          e_env->thisEnv[hash(x->val.lval->item[1].val.cval)]=eval(&x->val.lval->item[2],e_env);
+         free(x);
      }
      
      else if(strcmp(x->val.lval->item[0].val.cval,"lambda")==0){
-         lnode *vars=(lnode*)malloc(sizeof(lnode));
-         lnode *expr=(lnode*)malloc(sizeof(lnode));
+         lnode *vars;
+         lnode *expr;
          vars=&x->val.lval->item[1];
          expr=&x->val.lval->item[2];
          lnode *retf=(lnode*)malloc(sizeof(lnode));
@@ -504,7 +525,7 @@ lnode *eval(lnode *x,lnode *env){
      }
      
 	 else {  
-         lnode *proc=(lnode*)malloc(sizeof(lnode));
+         lnode *proc;
          proc=eval(&x->val.lval->item[0],e_env);
          int argslen=x->val.lval->length;
          list *arglist=createlist();
@@ -515,6 +536,7 @@ lnode *eval(lnode *x,lnode *env){
          for(int i=1;i<argslen;++i){
           arglist->item[i-1]=*eval(&x->val.lval->item[i],e_env);  
          }
+         
          args->val.lval=arglist;
          
          if(strcmp(proc->t,"p")==0){
@@ -525,13 +547,14 @@ lnode *eval(lnode *x,lnode *env){
          }
      }     
    }
-    return 0;
+   
+   return 0;
 }
 
 int main()
 {      
     lnode *genv=standard_env();
-    lnode *result=(lnode*)malloc(sizeof(lnode));
+    lnode *result;
 	
 	//insert program statements:
 	char *str="(define fact (lambda (n) (if (< n 2) 1 (* n (fact (- n 1))))))";
@@ -540,17 +563,15 @@ int main()
    //expression 1 goes here:
    list *tokens=tokenize(str);
    int tnum=0;
-   lnode *pnode=(lnode*)malloc(sizeof(lnode));
+   lnode *pnode;//=(lnode*)malloc(sizeof(lnode));
    pnode=parse(tokens,&tnum);
    eval(pnode,genv);
-  
+   
   //expression 2 goes here:
    tokens=tokenize(str2);
    tnum=0;
    pnode=parse(tokens,&tnum);
-   free(tokens); 
    result=eval(pnode,genv);
-   free(pnode);
    print_result(result);
    return 0;
 }
